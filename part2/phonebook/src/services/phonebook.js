@@ -12,9 +12,13 @@ const create = newEntry => {
 }
 
 const remove = (id) => {
-  console.log(`Remove person ${id}`);
   const request = axios.delete(`${baseUrl}/${id}`)
   return request.then(response => response.data)
 }
 
-export default { getAll, create, remove }
+const update = (id, updatedEntry) => {
+  const request = axios.put(`${baseUrl}/${id}`, updatedEntry)
+  return request.then(response => response.data)
+}
+
+export default { getAll, create, remove, update }

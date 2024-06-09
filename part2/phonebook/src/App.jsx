@@ -55,20 +55,35 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
+    const newPerson = {
+      name: newName,
+      number: newNumber
+    }
 
     const existingPerson = persons.find((p) => p.name === newName)
     if (existingPerson) {
-      alert(`${newName} has already been added to the phonebook`)
+      if (window.confirm(`${newName} is already in the phonebook.\nUpdate their number to ${newNumber}?`)) {
+        phonebookService
+          .update(existingPerson.id, newPerson)
+          .then(data => {
+            setPersons(persons.map(person => person.id !== existingPerson.id ? person : data))
+          })
+          .catch(error => {
+            console.log(error);
+            alert(`Failed to update ${existingPerson.name}`)
+          })
+        }
     } else {
-      const newPerson = {
-        name: newName,
-        number: newNumber
-      }
       phonebookService
         .create(newPerson)
         .then(data => {
           setPersons(persons.concat(data))
         })
+        .catch(error => {
+          console.log(error);
+          alert(`Failed to add ${newPerson.name}`)
+        })
+
     }
 
     setNewName('')
@@ -76,7 +91,6 @@ const App = () => {
   }
 
   const deletePerson = (id) => {
-    console.log(`id ${id}`);
     const existingPerson = persons.find((p) => p.id === id)
     if (window.confirm(`Delete ${existingPerson.name}?`)) {
       phonebookService
