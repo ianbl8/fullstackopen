@@ -39,13 +39,13 @@ const Person = ({ person, deletePerson }) => {
   )
 }
 
-const Notification = ({ message }) => {
+const Notification = ({ message, messageType }) => {
   if (!message) {
     return null
   }
 
   return (
-    <div className='message'>
+    <div className={messageType}>
       {message}
     </div>
   )
@@ -57,6 +57,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('')
 
   useEffect(() => {
     phonebookService
@@ -80,14 +81,21 @@ const App = () => {
           .update(existingPerson.id, newPerson)
           .then(data => {
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : data))
+            setMessageType('message')
             setMessage(`The entry for ${existingPerson.name} has been updated`)
             setTimeout(() => {
+              setMessageType(null)
               setMessage(null)
             }, 3000)
           })
+          // eslint-disable-next-line no-unused-vars
           .catch(error => {
-            console.log(error);
-            alert(`Failed to update ${existingPerson.name}`)
+            setMessageType('error')
+            setMessage(`Failed to update ${existingPerson.name}`)
+            setTimeout(() => {
+              setMessageType(null)
+              setMessage(null)
+            }, 3000)
           })
         }
     } else {
@@ -95,18 +103,23 @@ const App = () => {
         .create(newPerson)
         .then(data => {
           setPersons(persons.concat(data))
+          setMessageType('message')
           setMessage(`${newPerson.name} has been added to the phonebook`)
           setTimeout(() => {
+            setMessageType(null)
             setMessage(null)
           }, 3000)
       })
+        // eslint-disable-next-line no-unused-vars
         .catch(error => {
-          console.log(error);
-          alert(`Failed to add ${newPerson.name}`)
-        })
-
+          setMessageType('error')
+          setMessage(`Failed to add ${existingPerson.name}`)
+          setTimeout(() => {
+            setMessageType(null)
+            setMessage(null)
+          }, 3000)
+      })
     }
-
     setNewName('')
     setNewNumber('')
   }
@@ -117,17 +130,23 @@ const App = () => {
       phonebookService
         .remove(id)
         .then(() => {
+          setPersons(persons.filter((person) => person.id !== id))
+          setMessageType('message')
           setMessage(`The entry for ${existingPerson.name} has been deleted`)
           setTimeout(() => {
+            setMessageType(null)
             setMessage(null)
           }, 3000)
-
         })
+        // eslint-disable-next-line no-unused-vars
         .catch(error => {
-          console.log(error);
-          alert(`Failed to delete ${existingPerson.name}`)
-        })
-      setPersons(persons.filter((person) => person.id !== id))
+          setMessageType('error')
+          setMessage(`Failed to delete ${existingPerson.name}`)
+          setTimeout(() => {
+            setMessageType(null)
+            setMessage(null)
+          }, 3000)
+      })
     }
   }
   
@@ -148,7 +167,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <Notification message={message} />
+      <Notification message={message} messageType={messageType} />
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <h2>New entry</h2>
       <PersonForm addPerson={addPerson} newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} />
