@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import countriesService from './services/countries'
+import weatherService from './services/weather'
 
 const Filter = ({ filter, handleFilterChange }) => {
   return (
@@ -10,6 +11,27 @@ const Filter = ({ filter, handleFilterChange }) => {
 }
 
 const Country = ({country}) => {
+  const lat = country.capitalInfo.latlng[0]
+  const lng = country.capitalInfo.latlng[1]
+  const [temp, setTemp] = useState(0)
+  const [weatherType, setWeatherType] = useState('')
+  const [weatherIcon, setWeatherIcon] = useState('')
+  const [windSpeed, setWindSpeed] = useState(0)
+
+  useEffect(() => {
+    weatherService
+      .getWeather(lat, lng)
+      .then(data => {
+        setTemp(data.main.temp)
+        setWeatherType(data.weather[0].description)
+        setWeatherIcon('https://openweathermap.org/img/wn/' + data.weather[0].icon + '@4x.png')
+        setWindSpeed(data.wind.speed)
+      })
+      .catch(error => {
+        console.log(error);
+      })
+  })
+
   return (
     <div>
       <h2>{country.name.common}</h2>
@@ -22,6 +44,11 @@ const Country = ({country}) => {
         ))}
       </ul>
       <div><img src={country.flags.png} /></div>
+      <h3>Weather in {country.capital}</h3>
+      <div>Current conditions: {weatherType}</div>
+      <div><img src={weatherIcon} /></div>
+      <div>Temperature: {temp}ºC</div>
+      <div>Wind speed: {windSpeed} km/h</div>
     </div>
   )
 }
@@ -66,7 +93,7 @@ const App = () => {
       .catch(error => {
         console.log(error);
       })
-  })
+  }, [])
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value)
