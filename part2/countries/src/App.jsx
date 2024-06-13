@@ -9,31 +9,42 @@ const Filter = ({ filter, handleFilterChange }) => {
   )
 }
 
-const CountryDetails = ({countries}) => {
+const Country = ({country}) => {
+  return (
+    <div>
+      <h2>{country.name.common}</h2>
+      <div>capital: {country.capital}</div>
+      <div>area: {country.area}</div>
+      <h3>languages</h3>
+      <ul>
+        {Object.values(country.languages).map((value, index) => (
+          <li key={index}>{value}</li>
+        ))}
+      </ul>
+      <div><img src={country.flags.png} /></div>
+    </div>
+  )
+}
+
+const CountryList = ({countries, setFilter}) => {
+  return (
+    <ul>
+      {countries.map((country, index) =>
+        <li key={index}>
+          {country.name.common} <button onClick={() => {setFilter(country.name.common)}}>show</button>
+        </li>)}
+    </ul>
+  )
+}
+
+const CountryDetails = ({countries, setFilter}) => {
   if (countries.length === 1) {
-    const country = countries[0]
     return (
-      <div>
-        <h2>{country.name.common}</h2>
-        <div>capital: {country.capital}</div>
-        <div>area: {country.area}</div>
-        <h3>languages</h3>
-        <ul>
-          {Object.values(country.languages).map((value, index) => (
-            <li key={index}>{value}</li>
-          ))}
-        </ul>
-        <div><img src={country.flags.png} /></div>
-      </div>
+      <Country country={countries[0]} />
     )
   } else if (countries.length <= 10) {
     return (
-      <ul>
-        {countries.map((country, index) =>
-          <li key={index}>
-            {country.name.common}
-          </li>)}
-      </ul>
+      <CountryList countries={countries} setFilter={setFilter} />
     )
   } else {
     return (
@@ -66,7 +77,7 @@ const App = () => {
   return (
     <>
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
-      <CountryDetails countries={countriesFiltered} />
+      <CountryDetails countries={countriesFiltered} setFilter={setFilter} />
     </>
   )
 }
